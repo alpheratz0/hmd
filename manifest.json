@@ -1,0 +1,16 @@
+{
+	"manifest_version": 3,
+	"name": "hmd",
+	"version": "0.1.0",
+	"description": "haxball map dumper",
+	"content_scripts": [
+		{
+			"matches": ["https://*.haxball.com/*"],
+			"js": ["content.js"]
+		}
+	],
+	"permissions": ["activeTab"],
+	"action": {
+		"default_popup": "popup.html"
+	}
+}
