@@ -4,10 +4,14 @@
 		<meta charset="UTF-8" />
 		<title>hmd</title>
 		<link rel="stylesheet" href="./popup.css" />
+		<script src="./vendor/file-saver.js" defer></script>
+		<script src="./vendor/jszip.js" defer></script>
 		<script src="./popup.js" defer></script>
 	</head>
 	<body>
 		<h1>Maps</h1>
-		<ul id="maps"></ul>
+		<ul id="maps">
+			<li><span class="map-name">All maps</span><button id="download-all">download .zip</button></li>
+		</ul>
 	</body>
 </html>
