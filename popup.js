@@ -34,13 +34,13 @@ window.addEventListener('DOMContentLoaded', () => {
 						const span = document.createElement('span');
 						const button = document.createElement('button');
 
-						button.innerText = 'download .hbs';
+						button.innerText = '.hbs';
 						span.classList.toggle('map-name', true);
 						span.innerText = map.name;
 						li.append(span);
 						li.append(button);
 
-						button.addEventListener('click', () => {
+						li.addEventListener('click', () => {
 							saveAs(new Blob([map.data], {type: "text/plain;charset=utf-8"}), map.name + '.hbs');
 						});
 
