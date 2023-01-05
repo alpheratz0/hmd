@@ -2,11 +2,11 @@ function connectToDb(dbName) {
 	return new Promise((resolve, reject) => {
 		const request = indexedDB.open(dbName);
 
-		request.onsuccess = (ev) => {
+		request.onsuccess = (_) => {
 			resolve(request.result);
 		};
 
-		request.onerror = (ev) => {
+		request.onerror = (_) => {
 			reject('error while opening db');
 		};
 	});
@@ -18,7 +18,7 @@ function dumpDbObjectStore(dbConn, storeName) {
 		const request = store.openCursor();
 		const items = [];
 
-		request.onsuccess = (ev) => {
+		request.onsuccess = (_) => {
 			const cursor = request.result;
 			if (cursor) {
 				items.push(cursor.value);
@@ -28,7 +28,7 @@ function dumpDbObjectStore(dbConn, storeName) {
 			}
 		};
 
-		request.onerror = (ev) => {
+		request.onerror = (_) => {
 			reject('error while opening cursor');
 		};
 	});
@@ -44,7 +44,9 @@ async function main() {
 		maps.push({ name: meta[i].name, data: files[i] });
 
 	chrome.runtime.onMessage.addListener((msg, sender, response) => {
-		if (msg.from === 'popup' && msg.subject === 'maps') response(maps);
+		if (msg.from === 'popup' && msg.subject === 'maps') {
+			response(maps);
+		}
 	});
 }
 
