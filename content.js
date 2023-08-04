@@ -1,4 +1,4 @@
-function connectToDb(dbName) {
+const connectToDb = async (dbName) => {
 	return new Promise((resolve, reject) => {
 		const request = indexedDB.open(dbName);
 
@@ -10,9 +10,9 @@ function connectToDb(dbName) {
 			reject('error while opening db');
 		};
 	});
-}
+};
 
-function dumpDbObjectStore(dbConn, storeName) {
+const dumpDbObjectStore = async (dbConn, storeName) => {
 	return new Promise((resolve, reject) => {
 		const store = dbConn.transaction(storeName).objectStore(storeName);
 		const request = store.openCursor();
@@ -32,9 +32,9 @@ function dumpDbObjectStore(dbConn, storeName) {
 			reject('error while opening cursor');
 		};
 	});
-}
+};
 
-async function main() {
+const main = async () => {
 	const dbConn = await connectToDb('stadiums');
 	const files = await dumpDbObjectStore(dbConn, 'files');
 	const meta = await dumpDbObjectStore(dbConn, 'meta');
@@ -48,6 +48,6 @@ async function main() {
 			response(maps);
 		}
 	});
-}
+};
 
 main();
