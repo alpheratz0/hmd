@@ -1,65 +1,80 @@
-window.addEventListener('DOMContentLoaded', () => {
-	addEventListener('scroll', () => {
-		localStorage.setItem('scroll', document.documentElement.scrollTop);
+const getCurrentTab = async () => {
+	const tabsQuery = { active: true, currentWindow: true };
+	return (await chrome.tabs.query(tabsQuery))[0];
+};
+
+const getAllMaps = async () => {
+	const message = { from: 'popup', subject: 'maps' };
+	const tab = await getCurrentTab();
+	return chrome.tabs.sendMessage(tab.id, message);
+};
+
+const createMapLiEl = ({ name, data }) => {
+	const li = document.createElement('li');
+	const span = document.createElement('span');
+	const button = document.createElement('button');
+
+	button.innerText = '.hbs';
+	span.classList.toggle('map-name', true);
+	span.textContent = name;
+	li.append(span);
+	li.append(button);
+
+	li.addEventListener('click', () => {
+		saveAs(
+			new Blob([data], {
+				type: 'text/plain;charset=utf-8'
+			}),
+			name + '.hbs'
+		);
 	});
 
-	chrome.tabs.query(
-		{
-			active: true,
-			currentWindow: true
-		},
-		(tabs) => {
-			chrome.tabs.sendMessage(
-				tabs[0].id,
-				{ from: 'popup', subject: 'maps' },
-				(maps) => {
-					const downloadAllBtn =
-						document.querySelector('#download-all');
+	return li;
+};
 
-					downloadAllBtn.addEventListener('click', () => {
-						const zip = new JSZip();
-						const folder = zip.folder('haxball-maps');
+const onDOMContentLoaded = async () => {
+	const searchBoxInEl = document.getElementById('search-box');
+	const downloadAllBtnEl = document.getElementById('download-all');
+	const mapsUlEl = document.getElementById('maps');
+	const maps = await getAllMaps();
 
-						maps.forEach((m) => {
-							folder.file(
-								m.name.replaceAll('/', '_') + '.hbs',
-								m.data
-							);
-						});
+	searchBoxInEl.addEventListener('input', ({ target }) => {
+		const mapsEls = [...document.querySelectorAll('li span')];
+		const searchQuery = target.value.trim().toLowerCase();
+		const searchTerms = searchQuery.split(' ');
 
-						zip.generateAsync({ type: 'blob' }).then((content) => {
-							saveAs(content, 'haxball-maps.zip');
-						});
-					});
+		mapsEls.forEach((mapEl) => {
+			const mapTitle = mapEl.textContent.toLowerCase();
+			const visible =
+				searchQuery === '' ||
+				searchTerms.every((k) => mapTitle.includes(k));
+			mapEl.parentElement.classList.toggle('hidden', !visible);
+		});
+	});
 
-					for (let map of maps) {
-						const li = document.createElement('li');
-						const span = document.createElement('span');
-						const button = document.createElement('button');
+	downloadAllBtnEl.addEventListener('click', async () => {
+		const zip = new JSZip();
+		const folder = zip.folder('haxball-maps');
 
-						button.innerText = '.hbs';
-						span.classList.toggle('map-name', true);
-						span.innerText = map.name;
-						li.append(span);
-						li.append(button);
+		maps.forEach(({ name, data }) =>
+			folder.file(name.replaceAll('/', '_') + '.hbs', data)
+		);
 
-						li.addEventListener('click', () => {
-							saveAs(
-								new Blob([map.data], {
-									type: 'text/plain;charset=utf-8'
-								}),
-								map.name + '.hbs'
-							);
-						});
+		const content = await zip.generateAsync({ type: 'blob' });
+		saveAs(content, 'haxball-maps.zip');
+	});
 
-						document.querySelector('#maps').append(li);
-					}
+	maps.forEach((map) => mapsUlEl.append(createMapLiEl(map)));
 
-					document.documentElement.scrollTop = parseInt(
-						localStorage.getItem('scroll') ?? '0'
-					);
-				}
-			);
-		}
+	document.documentElement.scrollTop = parseInt(
+		localStorage.getItem('scroll') ?? '0'
 	);
-});
+};
+
+const onScroll = () => {
+	const { scrollTop } = document.documentElement;
+	localStorage.setItem('scroll', scrollTop);
+};
+
+window.addEventListener('DOMContentLoaded', onDOMContentLoaded);
+window.addEventListener('scroll', onScroll);

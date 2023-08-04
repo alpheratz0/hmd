@@ -182,3 +182,16 @@ button {
 	margin-left: 10px;
 	visibility: hidden;
 }
+
+header {
+	display: flex;
+	flex-direction: row;
+	align-items: space-between;
+	justify-content: space-between;
+	margin-right: 50px;
+}
+
+.hidden {
+	visibility: hidden;
+	display: none;
+}
